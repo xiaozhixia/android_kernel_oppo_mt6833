@@ -10,6 +10,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Patch Kernel Config (Remove Broken Dependency)
+      run: |
+        # 使用 sed 命令注释掉 init/Kconfig 中引用缺失文件的那一行
+        sed -i '710s/^/# /' init/Kconfig
+        echo "已注释掉 init/Kconfig 第710行"
+
     - name: Setup environment
       run: |
         sudo apt-get update
@@ -17,7 +23,7 @@ jobs:
 
     - name: Configure kernel
       run: |
-        make ARCH=arm64 O=out defconfig
+        make ARCH=arm64 O=out oppo6833_64_defconfig
 
     - name: Build modules
       run: |
