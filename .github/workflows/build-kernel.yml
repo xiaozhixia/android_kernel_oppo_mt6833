@@ -1,0 +1,30 @@
+name: Build Kernel Modules
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libncurses-dev flex bison libssl-dev libelf-dev bc
+
+    - name: Configure kernel
+      run: |
+        make ARCH=arm64 O=out oppo6833_64_defconfig
+
+    - name: Build modules
+      run: |
+        make ARCH=arm64 O=out -j$(nproc) modules
+
+    - name: Upload modules
+      uses: actions/upload-artifact@v4
+      with:
+        name: kernel-modules
+        path: out/**/*.ko
